@@ -1,31 +1,37 @@
+#This file focuses more on exploration of store data. I'm trying to predict foottraffic and see what is important
+#Then maybe add foottraffic somehow to the actual billing data and see if that becomes important
 import lightgbm as lgb
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import pandas as pd
 from graphviz import Digraph
 
-df_train = pd.read_csv('E:/Data/LennoxInternational/DataExtract/Data_Train.csv')
-df_train = df_train.sample(frac=1).reset_index(drop=True)
-df_test = pd.read_csv('E:/Data/LennoxInternational/DataExtract/Data_Validation.csv')
+df = pd.read_csv('E:/Data/LennoxInternational/DataExtract/Data_Stores.csv')
+#Shuffle dataset
+df = df.sample(frac=1).reset_index(drop=True)
+split = int(len(df.index) * 0.8)	#Keep 80% of store data as training and rest as validation
+df_train = df.iloc[:split]
+df_test = df.iloc[split:]
 
 #Columns to drop
 drop_columns = [
-	'Sales',		#Sales (y variable)
-	'Customer No.',
-	'Plant',
-	'Sold_To_Party'
+	'Foottraffic',
+	'Plant'	#Plant is a string so cannot train - maybe encode it to integer?
 ]
 
 #Columns that are categories
 cat_columns = [
-	'Cat_Category',
-	'FISCAL_MONTH',
-	'Cat_Marketing_Package',
-	'Cat_Cluster'
+	'Year',
+	'Month',
+	'Opening_Year',
+	'Cat_Store_Type',
+	'Cat_Store_Size',
+	'Cat_Trade_Area_Size',
+	'Does Store Have a Fleet Delivery Truck?',
 ]
 
-y_train = df_train['Sales']
-y_test = df_test['Sales']
+y_train = df_train['Foottraffic']
+y_test = df_test['Foottraffic']
 X_train = df_train.drop(drop_columns, 1)
 X_test = df_test.drop(drop_columns, 1)
 
@@ -52,13 +58,11 @@ for col in cat_columns:
 		categoricals.append(df_train.columns.tolist().index(col))
 	except ValueError:
 		continue
-print(categoricals)
-print(df_train.columns.tolist())
 
 # train
 gbm = lgb.train(params,
                 lgb_train,
-                num_boost_round=100,
+                num_boost_round=5000,
                 valid_sets=lgb_valid,
                 early_stopping_rounds=15,
 				categorical_feature=categoricals)
@@ -70,7 +74,3 @@ print('Feature importances:', list(gbm.feature_importance()))
 
 graph = lgb.create_tree_digraph(gbm)
 graph.view(cleanup=True)
-# predict
-#y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)
-# eval
-#print('The rmse of prediction is:', mean_squared_error(y_test, y_pred) ** 0.5)

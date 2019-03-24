@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4befd870-cb9e-49c1-91c5-b46a15e34658</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>LennoxInternationDSCompetition.py</StartupFile>
+    <StartupFile>StoreModel.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,6 +23,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="LennoxInternationDSCompetition.py" />
+    <Compile Include="StoreModel.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="CondaEnv|CondaEnv|CritterPy" />
